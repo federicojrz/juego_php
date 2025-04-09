@@ -36,11 +36,11 @@ $app->get('/usuarios', function (Request $request, Response $response, $args) us
 
 $app->post('/registro', function ($request, $response, $args) use ($pdo) {
     $datos = $request->getParsedBody();
-
+    $nombre = $datos['nombre'];
     $usuario = $datos['usuario'];
     $password = $datos['password'];
 
-    if (empty($usuario) || empty($password)) {
+    if (empty($usuario) || empty($password) || empty($nombre)) {
         $error = ['error' => 'Faltan campos obligatorios'];
         $response->getBody()->write(json_encode($error));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
@@ -77,8 +77,9 @@ $app->post('/registro', function ($request, $response, $args) use ($pdo) {
         }
 
     
-        $stmt = $pdo->prepare("INSERT INTO usuario (usuario, password) VALUES (:usuario, :password)");
+        $stmt = $pdo->prepare("INSERT INTO usuario (nombre,usuario, password) VALUES (:nombre,:usuario, :password)");
         $stmt->execute([
+            ':nombre'=> $nombre,
             ':usuario' => $usuario,
             ':password' => $password
         ]);
@@ -111,9 +112,6 @@ $app->put('/usuarios/{usuario}', function ($request, $response, $args) use ($pdo
         return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
     }
 
-
-
-
     $stmt = $pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE id = :id");
     $stmt->execute([
         ':id' => $id,
@@ -127,6 +125,41 @@ $app->put('/usuarios/{usuario}', function ($request, $response, $args) use ($pdo
 
 
     return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->post('/login', function ($request, $response, $args) use ($pdo){
+    $datos = $request->getParsedBody(); //guardo usuario y password en $datos
+    $usuario = $datos['usuario'];
+    $password = $datos['clave'];
+
+    if (empty($usuario) || empty($password)) { //chequo de campos vacios
+        $error = ['error' => 'Faltan campos obligatorios'];
+        $response->getBody()->write(json_encode($error));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+    }
+
+    $sql=("SELECT password,usuario FROM usuario WHERE usuario=:usuario"); //buscar usuario
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':usuario'=>$usuario]);
+    $resultado =$stmt->fetch();
+ 
+    if (($resultado) && ($resultado['password']==$password)){ //si está y concide contraseña
+        
+        $token = $usuario . rand(1000, 9999);
+        $vencimiento = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        $stmt = $pdo->prepare("UPDATE usuario SET token = :token, vencimiento_token = :vencimiento WHERE usuario = :usuario");
+        $stmt->execute([':usuario'=> $usuario ,':token'=>$token, ':vencimiento'=>$vencimiento]);
+
+        $response->getBody()->write(json_encode(['token' => $token]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+       
+    } else { //si no lo encuentra
+        
+        $response->getBody()->write(json_encode(['error' => 'usuario o clave inválidos']));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+
+    }
+
 });
 
 
