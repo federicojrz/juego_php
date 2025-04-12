@@ -19,20 +19,12 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
-$app->get('/usuarios', function (Request $request, Response $response, $args) use ($pdo) {
-    
-    $sql = "SELECT nombre FROM usuario";
-    $consulta = $pdo->query($sql);
-    $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC); 
-    $response->getBody()->write(json_encode($resultados))   ;
-    return $response;
-
     /**
      * faltaria manjear los codigos de errores
      * agregar exceptions
      * slim $response->withCode(401)
      */
-});
+
 
 $app->post('/registro', function ($request, $response, $args) use ($pdo) {
     $datos = $request->getParsedBody();
@@ -95,37 +87,6 @@ $app->post('/registro', function ($request, $response, $args) use ($pdo) {
     return $response->withHeader('Content-Type', 'application/json')->withStatus($statusCode);
 });
 
-$app->put('/usuarios/{usuario}', function ($request, $response, $args) use ($pdo){
-
-    $id = $args['usuario'];
-    
-    $data = $request->getParsedBody();
-    $stmt = $pdo->prepare("SELECT id FROM usuario WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-    $existe = $stmt->fetch();
-
-    if (!$existe) {
-        // Si no existe, devolver error 404
-        $response->getBody()->write(json_encode([
-            'error' => 'Usuario no encontrado'
-        ]));
-        return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-    }
-
-    $stmt = $pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE id = :id");
-    $stmt->execute([
-        ':id' => $id,
-        ':nombre' => $data['nombre'],
-        ':password' => $data['password']
-    ]);
-
-    $response->getBody()->write(json_encode([
-        'status' => 'Usuario actualizado correctamente'
-    ]));
-
-
-    return $response->withHeader('Content-Type', 'application/json');
-});
 
 $app->post('/login', function ($request, $response, $args) use ($pdo){
     $datos = $request->getParsedBody(); //guardo usuario y password en $datos
@@ -159,12 +120,50 @@ $app->post('/login', function ($request, $response, $args) use ($pdo){
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
 
     }
+   });
 
-});
+    $app->get('/usuarios/{usuario}', function($request, $response, $args) use ($pdo){
+        $authHeader = $request->getHeaderLine('Authorization'); //me traigo el token
+        $token = str_replace('Bearer ', '', $authHeader); //le saco la palabra Bearer (protocolo)
 
+        $stmt=$pdo->prepare("SELECT * FROM usuario WHERE token = :token AND vencimiento_token > NOW()");
+        $stmt->execute([':token'=>$token]);
+        $usuario = $stmt->fetch();
 
+        if (!$usuario) {
+            $response->getBody()->write(json_encode(['error'=>'Token inválido']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }else{
+            $userData=['nombre'=>$usuario['nombre'], 'usuario'=>$usuario['usuario']];
+            $response->getBody()->write(json_encode($userData));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        }
+    
+    });
 
+    $app->put('/usuarios/{usuario}', function ($request, $response, $args) use ($pdo){
+        
+        $authHeader = $request->getHeaderLine('Authorization'); //me traigo el token
+        $token = str_replace('Bearer ', '', $authHeader); //le saco la palabra Bearer (protocolo)
 
+        $stmt=$pdo->prepare("SELECT * FROM usuario WHERE token = :token AND vencimiento_token > NOW()");
+        $stmt->execute([':token'=>$token]);
+        $usuario = $stmt->fetch();
+
+        if (!$usuario) {
+            $response->getBody()->write(json_encode(['error'=>'Token inválido']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }else{
+            $data = $request->getParsedBody();
+            $stmt = $pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE token = :token");
+            $stmt->execute([':token'=>$token,
+                            ':nombre' => $data['nombre'],
+                            ':password' => $data['password']]);
+
+            $response->getBody()->write(json_encode(['exito'=>'Nombre y password modificados']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        }
+    });
 
 $app->run();
 
