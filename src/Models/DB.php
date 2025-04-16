@@ -1,6 +1,11 @@
 <?php
 
-class db {
+namespace App\Models;
+
+use PDO;
+use PDOException;
+
+class DB {
 
     private string $host = 'localhost';
     private string $dbname = 'cartas';
