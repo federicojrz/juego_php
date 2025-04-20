@@ -30,7 +30,7 @@ class UserModel{
 
         return ['Mensaje'=> 'Usuario registrado correctamente']; 
         }catch (PDOException $e) {
-            return ['error' => 'Error al registrar el usuario: ' . $e->getMessage()];
+            return ['error' => 'Error al registrar el usuario: ' . $e->getMessage()]; //preguntar el codigo de error
         }
 
         $response->getBody()->write(json_encode($respuesta));
@@ -52,5 +52,38 @@ class UserModel{
             return $resultado;
             
         }
+
+        public static function validarUsuario($usuario,$password){
+            $link= new DB();
+            $pdo = $link->getConnection();
+
+            $sql=("SELECT password,usuario FROM usuario WHERE usuario=:usuario"); //buscar usuario
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':usuario'=>$usuario]);
+            $resultado =$stmt->fetch();
+         
+            if (($resultado) && ($resultado['password']==$password)){
+                return true;
+
+        } else {
+            return false;
+        }
+    }
+
+        public static function actualizarToken($usuario,$token,$vencimiento){
+            try{
+                $link= new DB();
+                $pdo = $link->getConnection();
+                
+                $stmt = $pdo->prepare("UPDATE usuario SET token = :token, vencimiento_token = :vencimiento WHERE usuario = :usuario");
+                $stmt->execute([':usuario'=> $usuario ,':token'=>$token, ':vencimiento'=>$vencimiento]);
+            return true;
+            }catch (PDOException $e){
+                return false;
+            }
+
+        }
+
+
         
 }

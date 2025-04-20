@@ -24,6 +24,8 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->get('/usuarios', [UserController::class, 'getUser']);
 
+$app->post('/login', [UserController::class, 'login']);
+
     /**
      * faltaria manjear los codigos de errores
      * agregar exceptions

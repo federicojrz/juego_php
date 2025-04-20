@@ -52,4 +52,41 @@ class UserController{
         return $response->withHeader('Content-Type', 'application/json');
 
     }
+
+
+    public static function login(Request $request, Response $response){
+        $datos = $request->getParsedBody(); //guardo usuario y password en $datos
+        $usuario = $datos['usuario'];
+        $password = $datos['clave'];
+
+        if (empty($usuario) || empty($password)) { //chequo de campos vacios
+            $error = ['error' => 'Faltan campos obligatorios'];
+            $response->getBody()->write(json_encode($error));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $existe = UserModel::validarUsuario($usuario,$password);
+
+        if ($existe){
+            $token = $usuario . rand(1000, 9999);
+            $vencimiento = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            $ok = UserModel::actualizarToken($usuario,$token,$vencimiento);
+            if ($ok){
+                $respuesta=['Mensaje'=>'Inicio de sesion'];
+                $status=200;
+            }
+
+        } else{
+            $respuesta = ['Error'=> 'Usuario o contraseña incorrectos'];
+            $status=400;
+            
+        }
+        $response->getBody()->write(json_encode($respuesta));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+
+
+
+
+
+    }
 }
