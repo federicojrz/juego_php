@@ -17,14 +17,15 @@ $app->addBodyParsingMiddleware();
 
 $app->post('/registro', [UserController::class, 'registro']);
 
-$app->get('/', function (Request $request, Response $response, $args) {
+$app->post('/login', [UserController::class, 'login']);
+
+$app->get('/', function (Request $request, Response $response, $args) { //hello world
     $response->getBody()->write("Hello world!");
     return $response;
 });
 
-$app->get('/usuarios', [UserController::class, 'getUser']);
+$app->get('/usuarios', [UserController::class, 'getUser']); //endpoint de prueba
 
-$app->post('/login', [UserController::class, 'login']);
 
     /**
      * faltaria manjear los codigos de errores

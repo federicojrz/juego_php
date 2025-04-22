@@ -1,5 +1,5 @@
 <?php
-
+//esto es codigo viejo, reutilizamos algunas cosas por eso aun no se elimina
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 

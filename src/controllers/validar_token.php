@@ -1,5 +1,5 @@
 <?php
-
+//esto debe rehacerse
 function validarToken($request, $pdo) {
     // Obtener el token del header Authorization
     $authHeader = $request->getHeaderLine('Authorization');
