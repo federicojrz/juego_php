@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\Models\DB;
+use PDO;
 require_once __DIR__ . '/DB.php';
 
 class UserModel{
@@ -47,7 +48,7 @@ class UserModel{
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-            $resultado =$stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $resultado =$stmt->fetchAll(PDO::FETCH_ASSOC);
 
             return $resultado;
             
@@ -82,6 +83,23 @@ class UserModel{
                 return false;
             }
 
+        }
+
+        public static function mostrarUsuario($usuario){
+            try{
+                $link= new DB();
+                $pdo = $link->getConnection();
+                $sql=("SELECT nombre FROM usuario WHERE usuario=:usuario"); // tiense sentido el prepare en este caso que paso por el midleware?
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([':usuario'=>$usuario]);
+                $resultado =$stmt->fetch(\PDO::FETCH_ASSOC);//como pusimos use PDO no hace falta la barra \ antes
+                var_dump($resultado);
+
+                return $resultado;
+
+            }catch(PDOException $e){
+                return ['error' => 'Error al buscar usuario ' . $e->getMessage()];
+            }
         }
 
 

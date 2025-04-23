@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Models\UserModel;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use App\Middleware;
 
 class UserController{
 
@@ -47,7 +48,7 @@ class UserController{
         return $response;
     }
 
-    public static function getUser(Request $request, Response $response){ //PRUEBA retorna todos los usuarios
+  /*  public static function getUser(Request $request, Response $response){ //PRUEBA retorna todos los usuarios
         
         $resultado = UserModel::mostrar();
 
@@ -55,6 +56,7 @@ class UserController{
         return $response->withHeader('Content-Type', 'application/json');
 
     }
+        */
 
 
     public static function login(Request $request, Response $response){
@@ -100,6 +102,13 @@ class UserController{
         $response->getBody()->write(json_encode($respuesta));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
 
+    }
+
+    public static function getUser(Request $request, Response $response){
+        $usuario = $request->getAttribute('usuario');
+        $respuesta = UserModel::mostrarUsuario($usuario);
+        $response->getBody()->write(json_encode($respuesta));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     
