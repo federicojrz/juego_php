@@ -11,6 +11,31 @@ use App\Middleware;
 
 class UserController{
 
+    protected static function validarCampos(array $datos):array{ //valida si usuario y contraseña cumplen condiciones (usuario y contraseña o solo contraseña)
+        $errores = [];
+        
+        if (isset($datos['usuario'])){
+            $usuario = $datos['usuario'];
+            if (strlen($usuario) < 6 || strlen($usuario) > 20 || !ctype_alnum($usuario)){
+                $errores['usuario']='Debe tener entre 6 y 20 caracteres alfanumericos';
+            }
+        }
+
+        if (isset($datos['password'])){    
+            $password = $datos['password'];
+            if (
+                strlen($password) < 8 ||
+                !preg_match('/[A-Z]/', $password) ||     // al menos una mayúscula
+                !preg_match('/[a-z]/', $password) ||     // al menos una minúscula
+                !preg_match('/[0-9]/', $password) ||     // al menos un número
+                !preg_match('/[\W_]/', $password)        // al menos un carácter especial
+                ){
+                    $errores['password']='La clave debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales';
+                }
+            }
+             return $errores;
+    }
+
     public static function registro(Request $request, Response $response){
         $datos = $request->getParsedBody();
         $nombre = $datos['nombre'];
@@ -23,29 +48,18 @@ class UserController{
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-         if (strlen($usuario) < 6 || strlen($usuario) > 20 || !ctype_alnum($usuario)){
-            $respuesta = ['error' => 'El nombre de usuario debe ser alfanumérico y tener entre 6 y 20 caracteres'];
-            $response->getBody()->write(json_encode($respuesta));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-         }
+        $errores = self::validarCampos($datos);
 
-         // Validaciones de clave
-         if (
-            strlen($password) < 8 ||
-            !preg_match('/[A-Z]/', $password) ||     // al menos una mayúscula
-            !preg_match('/[a-z]/', $password) ||     // al menos una minúscula
-            !preg_match('/[0-9]/', $password) ||     // al menos un número
-            !preg_match('/[\W_]/', $password)        // al menos un carácter especial
-             ) {
-            $respuesta = ['error' => 'La clave debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales'];
-            $response->getBody()->write(json_encode($respuesta));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-            }
+        if (empty($errores)){
+            $resultado = UserModel::registrar($nombre,$usuario,$password);
+            $statusCode=200;
+        }else{
+            $resultado = $errores;
+            $statusCode = 400;
+        }
 
-         $resultado = UserModel::registrar($nombre,$usuario,$password);
-
-         $response->getBody()->write(json_encode($resultado));
-        return $response;
+        $response->getBody()->write(json_encode($resultado));       
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($statusCode);
     }
 
   /*  public static function getUser(Request $request, Response $response){ //PRUEBA retorna todos los usuarios
@@ -107,9 +121,29 @@ class UserController{
     public static function getUser(Request $request, Response $response){
         $usuario = $request->getAttribute('usuario');
         $respuesta = UserModel::mostrarUsuario($usuario);
+        $respuesta['usuario']=$usuario;
+
         $response->getBody()->write(json_encode($respuesta));
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public static function updateUser(Request $request, Response $response){
+        $datos = $request->getParsedBody();
+        $nombreNuevo = $datos['nombre'];
+        $passNuevo = $datos['password'];
+        $usuario = $request->getAttribute('usuario');
+
+        $errores = self::validarCampos(['password' => $passNuevo]);
+
+        if (!empty($errores)) {
+            $response->getBody()->write(json_encode($errores));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        
+        $respuesta = UserModel::actualizarUsuario($usuario,$datos);
+
+        $response->getBody()->write(json_encode($respuesta));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
     
 }

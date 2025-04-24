@@ -9,15 +9,15 @@ class UserModel{
     
 
     public static function registrar($nombre,$usuario,$password){
-        $link= new DB();
-        $pdo = $link->getConnection();
+        
 
         try{
+            $link= new DB();
+            $pdo = $link->getConnection();
+
             $stmt = $pdo->prepare("SELECT id FROM usuario WHERE usuario = :usuario");
             $stmt->execute([':usuario' => $usuario]);
-
-
-        if ($stmt->fetch()) {
+        if ($stmt->fetch(PDO::FETCH_ASSOC)) {
              return ['error' => 'El nombre de usuario ya esta en uso'];
             }
 
@@ -30,13 +30,10 @@ class UserModel{
         ]);
 
         return ['Mensaje'=> 'Usuario registrado correctamente']; 
-        }catch (PDOException $e) {
-            return ['error' => 'Error al registrar el usuario: ' . $e->getMessage()]; //preguntar el codigo de error
-        }
 
-        $response->getBody()->write(json_encode($respuesta));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($statusCode);
-    
+        } catch (PDOException $e) {
+            return ['error' => 'Error al registrar el usuario: ' . $e->getMessage()]; //preguntar el codigo de error
+            }
 
         }
 
@@ -93,7 +90,6 @@ class UserModel{
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([':usuario'=>$usuario]);
                 $resultado =$stmt->fetch(\PDO::FETCH_ASSOC);//como pusimos use PDO no hace falta la barra \ antes
-                var_dump($resultado);
 
                 return $resultado;
 
@@ -101,6 +97,20 @@ class UserModel{
                 return ['error' => 'Error al buscar usuario ' . $e->getMessage()];
             }
         }
+
+        public static function actualizarUsuario($usuario, $datos){
+            try{
+                $link= new DB();
+                $pdo = $link->getConnection();
+                $stmt = $pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE usuario = :usuario");
+                $stmt->execute([':usuario'=>$usuario,
+                                ':nombre' => $datos['nombre'],
+                                ':password' => $datos['password']]);
+                return ['Mensaje'=> 'Datos actulizados correctamente'];
+        }catch(PDOException $e){
+            return ['error' => 'Error al actualizar los datos: ' . $e->getMessage()];
+        }
+    }
 
 
         

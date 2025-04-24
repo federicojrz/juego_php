@@ -30,6 +30,8 @@ $app->get('/usuarios', [UserController::class, 'getUser']); //endpoint de prueba
 
 $app->get('/usuarios/{usuario}',[UserController::class, 'getUser'])->add([VerificarToken::class, 'VerificarToken']);
 
+$app->put('/usuarios/{usuario}',[UserController::class, 'updateUser'])->add([VerificarToken::class, 'VerificarToken']);
+
 
     /**
      * faltaria manjear los codigos de errores
