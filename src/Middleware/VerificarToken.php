@@ -21,6 +21,7 @@ class VerificarToken {
         try {
             $decoded = JWT::decode($token, new Key("mi_clave_super_secreta", 'HS256'));
             $request = $request->withAttribute('usuario', $decoded->usuario);
+            $request = $request->withAttribute('id', $decoded->id);
             return $handler->handle($request);
         } catch (\Exception $e) {
             $response = new Response();

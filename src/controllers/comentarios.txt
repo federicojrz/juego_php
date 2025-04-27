@@ -1,0 +1,10 @@
+27/4/25 1:08am -> Debido a que id de usuario va a ser requerido en los endpoints de mazo:
+    Cambios en VerificarToken.php - línea 24
+        Se agrega el atributo 'id' al $request 
+    Cambios en UserController.php - línea 95
+        se agrega el id obtenido al payload
+    Cambios en userModel.php - 
+        línea 59
+            Se agrega id a la búsqueda Sql
+        línea 65
+            Se devuelve el id al controlador si se encontró al usuario en la BD

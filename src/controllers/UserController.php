@@ -48,9 +48,9 @@ class UserController{
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $errores = self::validarCampos($datos);
+        $errores = self::validarCampos($datos); //devuelve posibles errores en un array
 
-        if (empty($errores)){
+        if (empty($errores)){ //si el array de errores esta vacio
             $resultado = UserModel::registrar($nombre,$usuario,$password);
             $statusCode=200;
         }else{
@@ -84,22 +84,23 @@ class UserController{
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $existe = UserModel::validarUsuario($usuario,$password);
-
+        $existe = UserModel::validarUsuario($usuario,$password); //$existe devuelve el id de usuario
         if ($existe){            
-        $clave_secreta = "mi_clave_super_secreta"; // clave con la que le servidor valida el token
-        $ahora = time();
-        $payload = [
-            "iat" => $ahora, // emitido en
-            "exp" => $ahora + 3600, // expira en 1 hora
-            "usuario" => $usuario
-        ];
+            $clave_secreta = "mi_clave_super_secreta"; // clave con la que le servidor valida el token
+            $ahora = time();
+            $payload = [
+                "iat" => $ahora, // emitido en
+                "exp" => $ahora + 3600, // expira en 1 hora
+                "usuario" => $usuario,
+                "id"=>$existe
+            ];
 
-        $token = JWT::encode($payload, $clave_secreta, 'HS256');
+            $token = JWT::encode($payload, $clave_secreta, 'HS256');
 
-        $vencimiento = date('Y-m-d H:i:s', $ahora + 3600);
+            $vencimiento = date('Y-m-d H:i:s', $ahora + 3600);
 
             $ok = UserModel::actualizarToken($usuario,$token,$vencimiento);
+
             if ($ok){
                 $respuesta=['Mensaje'=>'Inicio de sesion','token'=>$token];
                 $status=200;

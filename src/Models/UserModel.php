@@ -52,20 +52,24 @@ class UserModel{
         }
 
         public static function validarUsuario($usuario,$password){
+            try{
             $link= new DB();
             $pdo = $link->getConnection();
 
-            $sql=("SELECT password,usuario FROM usuario WHERE usuario=:usuario"); //buscar usuario
+            $sql=("SELECT password,usuario,id FROM usuario WHERE usuario=:usuario"); //buscar usuario
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':usuario'=>$usuario]);
             $resultado =$stmt->fetch();
          
             if (($resultado) && ($resultado['password']==$password)){
-                return true;
+                return $resultado['id'];
 
-        } else {
-            return false;
-        }
+            } else {
+              return false;
+              }
+            }catch(PDOException $e){
+                return ['error' => 'Error al validar usuario: ' . $e->getMessage()];
+            }
     }
 
         public static function actualizarToken($usuario,$token,$vencimiento){
