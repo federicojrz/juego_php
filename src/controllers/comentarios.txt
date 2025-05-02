@@ -8,3 +8,18 @@
             Se agrega id a la búsqueda Sql
         línea 65
             Se devuelve el id al controlador si se encontró al usuario en la BD
+
+
+28/4/25 Consulta Práctica
+Algunos comandos SQL que permiten unir tablas y obtener datos relacionados
+
+SELECT p.id as partidaId, m.id as mazoId, m.nombre as nombreMazo, ma.carta_id, ma.estado, c.nombre, c.ataque_nombre
+        FROM partida as p
+        INNER JOIN mazo as m ON (p.mazo_id=m.id)
+        INNER JOIN mazo_carta as ma ON (m.id=ma.mazo_id)
+        INNER JOIN carta as c ON (c.id=ma.carta_id)
+        WHERE p.id = 1
+
+
+DUDAS:
+En /jugadas : cuando dice que recibe la carta jugada por el usuario: ¿recibe el nombre de la carta o el id?

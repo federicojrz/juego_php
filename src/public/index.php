@@ -5,6 +5,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use App\Controllers\UserController;
 use App\Controllers\MazoController;
+use App\Controllers\PartidaController;
+use App\Controllers\JugadaController;
 use App\Middleware\VerificarToken;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -16,7 +18,6 @@ $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
 
 
-//require_once __DIR__ . '/../endpoints/usuarios.php';
 
 $app->post('/registro', [UserController::class, 'registro']);
 
@@ -34,6 +35,11 @@ $app->get('/usuarios/{usuario}',[UserController::class, 'getUser'])->add(new Ver
 $app->put('/usuarios/{usuario}',[UserController::class, 'updateUser'])->add(new VerificarToken());
 
 $app->post('/mazos',[MazoController::class, 'crearMazo'])->add(new VerificarToken());
+
+$app->post('/partidas',[PartidaController::class, 'crearPartida'])->add(new VerificarToken());
+
+$app->post('/jugadas',[JugadaController::class, 'registroJugada'])->add(new VerificarToken());
+
     /**
      * faltaria manjear los codigos de errores
      * agregar exceptions
@@ -47,5 +53,8 @@ $app->get('/prueba', function ($request, $response, $args)use ($pdo){
     return $response;
     });
     */
+
+
+
 $app->run();
 

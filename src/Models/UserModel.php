@@ -111,10 +111,10 @@ class UserModel{
                                 ':nombre' => $datos['nombre'],
                                 ':password' => $datos['password']]);
                 return ['Mensaje'=> 'Datos actulizados correctamente'];
-        }catch(PDOException $e){
-            return ['error' => 'Error al actualizar los datos: ' . $e->getMessage()];
+            }catch(PDOException $e){
+                return ['error' => 'Error al actualizar los datos: ' . $e->getMessage()];
+            }
         }
-    }
 
 
         

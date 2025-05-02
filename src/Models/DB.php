@@ -8,7 +8,7 @@ use PDOException;
 class DB {
 
     private string $host = 'localhost';
-    private string $dbname = 'cartas';
+    private string $dbname = 'juego_cartas';
     private string $username = 'root';
 
     private ?PDO $pdo = null;
@@ -25,6 +25,10 @@ class DB {
 
     function getConnection(){
         return $this->pdo;
+    }
+
+    function closeConnection(){ //completar
+        $this->pdo = null;
     }
 
 }
