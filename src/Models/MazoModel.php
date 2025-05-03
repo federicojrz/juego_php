@@ -67,7 +67,10 @@ class MazoModel{
         $link = new DB();
         $pdo = $link->getConnection();
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM mazo WHERE id = :idMazo AND usuario_id = :idUsuario");
+        $stmt = $pdo->prepare("SELECT COUNT(*) 
+                               FROM mazo 
+                               WHERE id = :idMazo 
+                               AND usuario_id = :idUsuario");
         $stmt->execute([':idUsuario' => $idUsuario, ':idMazo'=>$idMazo]);
 
         return $stmt->fetchColumn() > 0;
@@ -79,7 +82,7 @@ class MazoModel{
             try{
                 $stmt = $pdo->prepare("SELECT p.mazo_id FROM partida as p 
                                         INNER JOIN mazo_carta AS m ON p.mazo_id = m.mazo_id
-                                        WHERE m.carta_id=:idCarta AND p.id=:idPartida");
+                                        WHERE m.carta_id=:idCarta AND p.id=:idPartida AND m.estado ='en_mano'");
 
             $stmt->execute([':idCarta'=>$idCarta,
                             ':idPartida'=>$idPartida]);

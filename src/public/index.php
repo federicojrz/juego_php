@@ -7,6 +7,7 @@ use App\Controllers\UserController;
 use App\Controllers\MazoController;
 use App\Controllers\PartidaController;
 use App\Controllers\JugadaController;
+use App\Controllers\EstadisticasController;
 use App\Middleware\VerificarToken;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -23,13 +24,6 @@ $app->post('/registro', [UserController::class, 'registro']);
 
 $app->post('/login', [UserController::class, 'login']);
 
-$app->get('/', function (Request $request, Response $response, $args) { //hello world
-    $response->getBody()->write("Hello world!");
-    return $response;
-});
-
-$app->get('/usuarios', [UserController::class, 'getUser']); //endpoint de prueba
-
 $app->get('/usuarios/{usuario}',[UserController::class, 'getUser'])->add(new VerificarToken());
 
 $app->put('/usuarios/{usuario}',[UserController::class, 'updateUser'])->add(new VerificarToken());
@@ -40,21 +34,13 @@ $app->post('/partidas',[PartidaController::class, 'crearPartida'])->add(new Veri
 
 $app->post('/jugadas',[JugadaController::class, 'registroJugada'])->add(new VerificarToken());
 
+$app->get('/estadisticas',[EstadisticasController::class, 'estadisticas']);
+
     /**
      * faltaria manjear los codigos de errores
      * agregar exceptions
      * slim $response->withCode(401)
      */
-  /*
-$app->get('/prueba', function ($request, $response, $args)use ($pdo){
-    $stmt = $pdo->query("SELECT * FROM usuario");
-    $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $response->getbody()->write(json_encode($usuarios));
-    return $response;
-    });
-    */
-
-
 
 $app->run();
 

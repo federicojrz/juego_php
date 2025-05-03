@@ -37,7 +37,7 @@ class UserModel{
 
         }
 
-        public static function mostrar(){
+    public static function mostrar(){
             $link= new DB();
             $pdo = $link->getConnection();
 
@@ -45,22 +45,22 @@ class UserModel{
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-            $resultado =$stmt->fetchAll(PDO::FETCH_ASSOC);
+            $resultado =$stmt->fetch(\PDO::FETCH_ASSOC);
 
             return $resultado;
             
         }
 
-        public static function validarUsuario($usuario,$password){
+    public static function validarUsuario($usuario,$password){
             try{
             $link= new DB();
             $pdo = $link->getConnection();
 
-            $sql=("SELECT password,usuario,id FROM usuario WHERE usuario=:usuario"); //buscar usuario
+            $sql=("SELECT password,id FROM usuario WHERE usuario=:usuario"); //buscar usuario
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':usuario'=>$usuario]);
-            $resultado =$stmt->fetch();
-         
+            $resultado =$stmt->fetch(PDO::FETCH_ASSOC);
+            var_dump($resultado);   
             if (($resultado) && ($resultado['password']==$password)){
                 return $resultado['id'];
 
@@ -72,7 +72,8 @@ class UserModel{
             }
     }
 
-        public static function actualizarToken($usuario,$token,$vencimiento){
+
+    public static function actualizarToken($usuario,$token,$vencimiento){
             try{
                 $link= new DB();
                 $pdo = $link->getConnection();
@@ -86,7 +87,7 @@ class UserModel{
 
         }
 
-        public static function mostrarUsuario($usuario){
+    public static function mostrarUsuario($usuario){
             try{
                 $link= new DB();
                 $pdo = $link->getConnection();
@@ -102,7 +103,7 @@ class UserModel{
             }
         }
 
-        public static function actualizarUsuario($usuario, $datos){
+    public static function actualizarUsuario($usuario, $datos){
             try{
                 $link= new DB();
                 $pdo = $link->getConnection();

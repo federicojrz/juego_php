@@ -78,6 +78,8 @@ class UserController{
         $usuario = $datos['usuario'];
         $password = $datos['clave'];
 
+        var_dump($usuario);
+
         if (empty($usuario) || empty($password)) { //chequo de campos vacios
             $error = ['error' => 'Faltan campos obligatorios'];
             $response->getBody()->write(json_encode($error));

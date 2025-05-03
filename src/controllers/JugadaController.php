@@ -82,26 +82,27 @@ class JugadaController{
                      ];
 
         if (JugadaModel::contarJugadas($idPartida) == 5){
-            
-            PartidaModel::finalizarPartida($idPartida);
 
-            $puntosJugador = JugadaModel::resultadosJugador($idPartida);
-
-            
+            $puntosJugador = JugadaModel::resultadosJugador($idPartida);            
 
             if ($puntosJugador['gano'] > $puntosJugador['perdio']) {
-                $ganadorFinal = $nombreUsuario;
+                $resultado='gano';
             } elseif ($puntosJugador['gano'] < $puntosJugador['perdio']) {
-                $ganadorFinal = 'Servidor';
+                $resultado='perdio';
             } else {
-                $ganadorFinal = 'empate';
+                $resultado = 'empato';
             }
 
-            $respuesta = ['Ganador: '=>$ganadorFinal,
+            PartidaModel::finalizarPartida($idPartida,$resultado);
+
+            $respuesta = ['Usuario: '=>$nombreUsuario,
+                          'Resultado: '=>$resultado,
                           'Victorias: '=>$puntosJugador['gano'],
                           'Derrotas: '=>$puntosJugador['perdio']
                         ];           
         }
+
+        
         
         $response->getBody()->write(json_encode($respuesta));
 

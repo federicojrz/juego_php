@@ -29,9 +29,9 @@ class MazoController{
         }
 
         $cantMazos = MazoModel::contarMazos($usuarioId);
-            if ($cantMazos == $mazosPermitidos){
+            if ($cantMazos >= $mazosPermitidos){
                 $response->getBody()->write(json_encode(['error' => 'Máximo 3 mazos permitidos']));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
             }
 
         foreach ($cartas as $cartaId) {

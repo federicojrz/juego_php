@@ -23,15 +23,16 @@ class PartidaModel {
 
     }
 
-    public static function finalizarPartida($idPartida){
+    public static function finalizarPartida($idPartida,$resultado){
         $link= new DB();
         $pdo=$link->getConnection();
 
-        $sql="UPDATE partida SET estado = 'finalizada' WHERE id=:idPartida";
+        $sql="UPDATE partida SET estado = 'finalizada', el_usuario =:resultado WHERE id=:idPartida";
 
         $stmt = $pdo->prepare($sql);
 
-        $stmt->execute([':idPartida'=>$idPartida]);
+        $stmt->execute([':idPartida'=>$idPartida,
+                        ':resultado'=>$resultado]);
 
     }
 
