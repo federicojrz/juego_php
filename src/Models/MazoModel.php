@@ -189,15 +189,12 @@ class MazoModel{
 
     public static function borrarMazo($idMazo) {
         try {
-            // Conexión a la base de datos
             $link = new DB();
             $pdo = $link->getConnection();
-    
-            // Eliminar las cartas asociadas al mazo
+            //lo borra del mazo_carta y de mazo que tenga ese id
             $stmt = $pdo->prepare("DELETE FROM mazo_carta WHERE mazo_id = :idMazo");
             $stmt->execute([':idMazo' => $idMazo]);
     
-            // Eliminar el mazo
             $stmt = $pdo->prepare("DELETE FROM mazo WHERE id = :idMazo");
             $stmt->execute([':idMazo' => $idMazo]);
     
