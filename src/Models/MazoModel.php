@@ -150,4 +150,61 @@ class MazoModel{
 
 
     }
+     //--------PUT /mazos/{mazo}--------//(fede)
+    public static function actualizarNombreMazo($idMazo, $nuevoNombre, $usuarioId) {
+        try {
+            $link = new DB;
+            $pdo = $link->getConnection();
+            //esto es para verificacion
+            $stmt = $pdo->prepare("SELECT id FROM mazo WHERE id = :idMazo AND usuario_id = :usuarioId");
+            $stmt->execute([':idMazo' => $idMazo, ':usuarioId' => $usuarioId]);
+        
+            if ($stmt->rowCount() === 0) {
+                return ['error' => 'El mazo no existe o no pertenece al usuario'];
+            } 
+            $stmt = $pdo->prepare("UPDATE mazo SET nombre = :nuevoNombre WHERE id = :idMazo");
+            $stmt->execute([':nuevoNombre' => $nuevoNombre, ':idMazo' => $idMazo]);
+
+            return ['mensaje' => 'Nombre del mazo actualizado'];
+        } catch (PDOException $e) {
+            return ['error' => 'Error al actualizar: ' . $e->getMessage()];
+        }
+}
+
+    public static function mazoUsado($idMazo) {
+        try {
+            $link = new DB();
+            $pdo = $link->getConnection();
+            // Verifica si jugo una partida y si termino
+            $stmt = $pdo->prepare("SELECT COUNT(*) 
+                                   FROM partida 
+                                   WHERE mazo_id = :idMazo AND estado = 'finalizada'");
+            $stmt->execute([':idMazo' => $idMazo]);
+
+            return $stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function borrarMazo($idMazo) {
+        try {
+            // Conexión a la base de datos
+            $link = new DB();
+            $pdo = $link->getConnection();
+    
+            // Eliminar las cartas asociadas al mazo
+            $stmt = $pdo->prepare("DELETE FROM mazo_carta WHERE mazo_id = :idMazo");
+            $stmt->execute([':idMazo' => $idMazo]);
+    
+            // Eliminar el mazo
+            $stmt = $pdo->prepare("DELETE FROM mazo WHERE id = :idMazo");
+            $stmt->execute([':idMazo' => $idMazo]);
+    
+            return ['mensaje' => 'Mazo eliminado correctamente.'];
+        } catch (PDOException $e) {
+            return ['error' => 'Error al eliminar el mazo: ' . $e->getMessage()];
+        }
+    }
+
 }

@@ -52,4 +52,39 @@ class MazoController{
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
             }
     }
-}
+
+    //--------- DELETE /mazos/{mazo}--------//(fede)
+    public static function eliminarMazo($request, $response, $args) {
+        $idMazo = $args['mazo']; 
+        $usuarioId = $request->getAttribute('id'); 
+
+        if (!MazoModel::verificarMazo($idMazo, $usuarioId)) {
+            $response->getBody()->write(json_encode(['error' => 'El mazo no existe o no pertenece al usuario']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        if (MazoModel::mazoUsado($idMazo)) {
+            $response->getBody()->write(json_encode(['error' => 'El mazo a ha sido usado en una partida, y no puede ser eliminado']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
+        }
+
+        // Si todas las validaciones anteriores son correctas, ahora intentamos eliminar el mazo
+        try {
+            $result = MazoModel::borrarMazo($idMazo);
+
+            if (isset($result['error'])) {
+                $response->getBody()->write(json_encode(['mensaje' => 'error al eliminar el maso']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+            $response->getBody()->write(json_encode(['mensaje' => 'Mazo eliminado correctamente']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            // cualquier otro error
+            $response->getBody()->write(json_encode(['mensaje' => 'Error interno del servidor']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+
+
+        }
+    }
+ }
+

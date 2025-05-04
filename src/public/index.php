@@ -42,5 +42,10 @@ $app->get('/estadisticas',[EstadisticasController::class, 'estadisticas']);
      * slim $response->withCode(401)
      */
 
+ // endpoints a probar
+$app->delete('/mazos/{mazo}', [MazoController::class , ':eliminarMazo'])->add(new VerificarToken());
+$app->put('/mazos/{mazo}', [MazoController::class, 'actualizarNombreMazo'])->add(new VerificarToken());
+
+
 $app->run();
 
