@@ -55,6 +55,13 @@ class MazoController{
 
     //--------- DELETE /mazos/{mazo}--------//(fede)
     public static function eliminarMazo($request, $response, $args) {
+        
+    //esta es la correccion, chequea si el numero de mazo fue enviado
+        if (!isset($args['mazo'])) {
+            $response->getBody()->write(json_encode(['error' => 'ID de mazo no enviado']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        
         $idMazo = $args['mazo']; 
         $usuarioId = $request->getAttribute('id'); 
 
