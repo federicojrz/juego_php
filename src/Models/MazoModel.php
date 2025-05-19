@@ -152,6 +152,16 @@ class MazoModel{
     }
      //--------PUT /mazos/{mazo}--------//(fede)
     public static function actualizarNombreMazo($idMazo, $nuevoNombre, $usuarioId) {
+        //correcciones: los hice separados para que se identifique bien el parametro que no fue pasado
+         if (!isset($idMazo) {
+            return ['error' => 'Falta ID de mazo', 'status' => 400];
+        }
+        if (!isset($usuarioId)) {
+            return ['error' => 'Falta ID de usuario', 'status' => 400];
+        }
+        if (!isset($nuevoNombre) {
+        return ['error' => 'Falta el nuevo nombre del mazo', 'status' => 400];
+        }
         try {
             $link = new DB;
             $pdo = $link->getConnection();
